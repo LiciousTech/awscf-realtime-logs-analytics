@@ -1,0 +1,32 @@
+spring.application.name: log-processor
+logging.level.root: INFO
+
+aws.region: ${AWS_REGION}
+
+kinesis:
+   streamName:  ${AWS_KINESIS_STREAM_NAME}
+   applicationName: ${AWS_KINESIS_APPLICATION_NAME}
+
+
+# Writer to enable.
+# Options: CLICKHOUSE, ELASTICSEARCH, STDOUT
+#
+writer:
+    destination: ${WRITER_DESTINATION_DATASOURCE:STDOUT}
+
+# ClickHouse specific configurations when Clickhouse writer is enabled
+clickhouse:
+  datasource:
+    user: ${WRITER_DATASOURCE_CLICKHOUSE_USER}
+    password: ${WRITER_DATASOURCE_CLICKHOUSE_PASSWORD}
+    url: ${WRITER_DATASOURCE_CLICKHOUSE_URL}
+
+# Elasticsearch specific configurations when Elasticsearch writer is enabled.
+elasticsearch:
+  datasource:
+    host: ${WRITER_DATASOURCE_ES_HOST}
+    port: ${WRITER_DATASOURCE_ES_PORT:9200}
+    scheme: ${WRITER_DATASOURCE_ES_SCHEME:http}
+    #user: ${WRITER_DATASOURCE_ELASTICSEARCH_USER:admin}
+    #password: ${WRITER_DATASOURCE_ELASTICSEARCH_PASSWORD:default}
+
