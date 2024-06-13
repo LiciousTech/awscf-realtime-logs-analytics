@@ -113,6 +113,42 @@ CREATE TABLE cloudfront_logs (
 
 If you are also indexing data into Elasticsearch, create the necessary index with the provided mapping.
 
+```json
+{
+  "mappings": {
+    "properties": {
+      "timestamp": { "type": "date" },
+      "c_ip": { "type": "ip" },
+      "time_to_first_byte": { "type": "float" },
+      "sc_status": { "type": "keyword" },
+      "sc_bytes": { "type": "long" },
+      "cs_method": { "type": "keyword" },
+      "cs_protocol": { "type": "keyword" },
+      "cs_host": { "type": "keyword" },
+      "cs_uri_stem": { "type": "keyword" },
+      "cs_bytes": { "type": "long" },
+      "x_edge_location": { "type": "keyword" },
+      "x_host_header": { "type": "keyword" },
+      "cs_protocol_version": { "type": "keyword" },
+      "c_ip_version": { "type": "keyword" },
+      "cs_user_agent": { "type": "text" },
+      "cs_referer": { "type": "text" },
+      "cs_uri_query": { "type": "text" },
+      "x_edge_response_result_type": { "type": "keyword" },
+      "x_forwarded_for": { "type": "ip" },
+      "ssl_protocol": { "type": "keyword" },
+      "x_edge_result_type": { "type": "keyword" },
+      "sc_content_type": { "type": "keyword" },
+      "c_country": { "type": "keyword" },
+      "cs_accept_encoding": { "type": "keyword" },
+      "cs_accept": { "type": "keyword" },
+      "cache_behavior_path_pattern": { "type": "keyword" },
+      "primary_distribution_id": { "type": "keyword" },
+      "asn": { "type": "keyword" }
+    }
+  }
+}
+```
 ## Running the Application
 
 1. **Deploy the application on Kubernetes:**
