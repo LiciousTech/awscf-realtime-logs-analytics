@@ -56,8 +56,8 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/clickhouse-distributed-ingestion.git
-   cd clickhouse-distributed-ingestion
+   git clone https://github.com/LiciousTech/awscf-realtime-logs-analytics.git
+   cd awscf-realtime-logs-analytics
    ```
 
 2. **Build the project:**
@@ -69,45 +69,45 @@ Before you begin, ensure you have the following installed:
 3. **Dockerize the application:**
 
    ```bash
-   docker build -t yourusername/clickhouse-distributed-ingestion:latest .
+   docker build -t yourusername/awscf-realtime-logs-analytics:latest .
    ```
 
 4. **Deploy ClickHouse on Kubernetes:**
 
    To deploy ClickHouse on Kubernetes using Helm, follow the [official documentation](https://clickhouse.tech/docs/en/operations/kubernetes/) provided by ClickHouse.
 
-## Environment Configuration
+## Environment Variables
 
 ### Configure DataStore Writer :
 
 Supported Values `CLICKHOUSE`, `ELASTICSEARCH`, or `STDOUT`.
 
 ```properties
-WRITER_DESTINATION_DATASOURCE: CLICKHOUSE
+WRITER_DESTINATION_DATASOURCE: "CLICKHOUSE"
 ```
 
 
 ### Configure ClickHouse connection:
 
 ```properties
-WRITER_DATASOURCE_CLICKHOUSE_URL=jdbc:clickhouse://<your-clickhouse-host>:8123
-WRITER_DATASOURCE_CLICKHOUSE_USER=admin
-WRITER_DATASOURCE_CLICKHOUSE_PASSWORD=changeme
+WRITER_DATASOURCE_CLICKHOUSE_URL: "jdbc:clickhouse://<your-clickhouse-host>:8123"
+WRITER_DATASOURCE_CLICKHOUSE_USER: "admin"
+WRITER_DATASOURCE_CLICKHOUSE_PASSWORD: "changeme"
 ```
 
 ### Configure ElasticSearch connection:
 
 ```properties
-WRITER_DATASOURCE_ES_HOST=localhost
-WRITER_DATASOURCE_ES_PORT=9200
-WRITER_DATASOURCE_ES_SCHEME:=http
+WRITER_DATASOURCE_ES_HOST: "localhost"
+WRITER_DATASOURCE_ES_PORT: "9200"
+WRITER_DATASOURCE_ES_SCHEME: "http"
 ```
 
 ### Configure AWS Kinesis:
 
 ```properties
-AWS_KINESIS_STREAM_NAME=<your-stream-name>
-AWS_KINESIS_APPLICATION_NAME=<your-aws-region>
+AWS_KINESIS_STREAM_NAME: <your-stream-name>
+AWS_KINESIS_APPLICATION_NAME: <your-app-name>
 ```
 
 
@@ -115,8 +115,46 @@ AWS_KINESIS_APPLICATION_NAME=<your-aws-region>
 
 Create the necessary tables in your ClickHouse cluster using the following schema:
 
+MergeTree Engine
 ```sql
-CREATE TABLE cloudfront_logs (
+CREATE TABLE cloudfront_logs.cloudfront_logs
+(
+    `timestamp` UInt64,
+    `c_ip` String,
+    `time_to_first_byte` Float32,
+    `sc_status` Int32,
+    `sc_bytes` UInt64,
+    `cs_method` String,
+    `cs_protocol` String,
+    `cs_host` String,
+    `cs_uri_stem` String,
+    `cs_bytes` UInt64,
+    `x_edge_location` String,
+    `x_host_header` String,
+    `cs_protocol_version` String,
+    `c_ip_version` String,
+    `cs_user_agent` String,
+    `cs_referer` String,
+    `cs_uri_query` String,
+    `x_edge_response_result_type` String,
+    `x_forwarded_for` String,
+    `ssl_protocol` String,
+    `x_edge_result_type` String,
+    `sc_content_type` String,
+    `c_country` String,
+    `cs_accept_encoding` String,
+    `cs_accept` String,
+    `cache_behavior_path_pattern` String,
+    `primary_distribution_id` String,
+    `asn` UInt64
+)
+ENGINE = MergeTree
+ORDER BY timestamp;
+```
+
+Distributed version for having multiple shards:
+```sql
+CREATE TABLE distributed_cloudfront_logs (
     timestamp String,
     c_ip String,
     time_to_first_byte String,
@@ -145,47 +183,127 @@ CREATE TABLE cloudfront_logs (
     cache_behavior_path_pattern String,
     primary_distribution_id String,
     asn String
-) ENGINE = Distributed('cluster_name', 'database_name', 'local_table_name', rand());
+) ENGINE = Distributed('cluster', 'cloudfront_logs', 'cloudfront_logs', rand());
 ```
 
-### Elasticsearch Schema
+### Elasticsearch Mapping
 
 If you are also indexing data into Elasticsearch, create the necessary index with the provided mapping.
 
 ```json
+PUT /cloudfrontlogs
 {
-  "mappings": {
-    "properties": {
-      "timestamp": { "type": "date" },
-      "c_ip": { "type": "ip" },
-      "time_to_first_byte": { "type": "float" },
-      "sc_status": { "type": "keyword" },
-      "sc_bytes": { "type": "long" },
-      "cs_method": { "type": "keyword" },
-      "cs_protocol": { "type": "keyword" },
-      "cs_host": { "type": "keyword" },
-      "cs_uri_stem": { "type": "keyword" },
-      "cs_bytes": { "type": "long" },
-      "x_edge_location": { "type": "keyword" },
-      "x_host_header": { "type": "keyword" },
-      "cs_protocol_version": { "type": "keyword" },
-      "c_ip_version": { "type": "keyword" },
-      "cs_user_agent": { "type": "text" },
-      "cs_referer": { "type": "text" },
-      "cs_uri_query": { "type": "text" },
-      "x_edge_response_result_type": { "type": "keyword" },
-      "x_forwarded_for": { "type": "ip" },
-      "ssl_protocol": { "type": "keyword" },
-      "x_edge_result_type": { "type": "keyword" },
-      "sc_content_type": { "type": "keyword" },
-      "c_country": { "type": "keyword" },
-      "cs_accept_encoding": { "type": "keyword" },
-      "cs_accept": { "type": "keyword" },
-      "cache_behavior_path_pattern": { "type": "keyword" },
-      "primary_distribution_id": { "type": "keyword" },
-      "asn": { "type": "keyword" }
-    }
-  }
+   "settings": {
+      "number_of_shards": 5,
+      "number_of_replicas": 1
+   },
+   "mappings": {
+      "properties": {
+         "timestamp": {
+            "type": "date",
+            "format": "epoch_second"
+         },
+         "c_ip": {
+            "type": "ip"
+         },
+         "time_to_first_byte": {
+            "type": "float"
+         },
+         "sc_status": {
+            "type": "integer"
+         },
+         "sc_bytes": {
+            "type": "integer"
+         },
+         "cs_method": {
+            "type": "keyword"
+         },
+         "cs_protocol": {
+            "type": "keyword"
+         },
+         "cs_host": {
+            "type": "keyword"
+         },
+         "cs_uri_stem": {
+            "type": "keyword"
+         },
+         "cs_bytes": {
+            "type": "integer"
+         },
+         "x_edge_location": {
+            "type": "keyword"
+         },
+         "x_host_header": {
+            "type": "keyword"
+         },
+         "cs_protocol_version": {
+            "type": "keyword"
+         },
+         "c_ip_version": {
+            "type": "keyword"
+         },
+         "cs_user_agent": {
+            "type": "text",
+            "fields": {
+               "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+               }
+            }
+         },
+         "cs_referer": {
+            "type": "text",
+            "fields": {
+               "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+               }
+            }
+         },
+         "cs_uri_query": {
+            "type": "text",
+            "fields": {
+               "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+               }
+            }
+         },
+         "x_edge_response_result_type": {
+            "type": "keyword"
+         },
+         "x_forwarded_for": {
+            "type": "keyword"
+         },
+         "ssl_protocol": {
+            "type": "keyword"
+         },
+         "x_edge_result_type": {
+            "type": "keyword"
+         },
+         "sc_content_type": {
+            "type": "keyword"
+         },
+         "c_country": {
+            "type": "keyword"
+         },
+         "cs_accept_encoding": {
+            "type": "keyword"
+         },
+         "cs_accept": {
+            "type": "keyword"
+         },
+         "cache_behavior_path_pattern": {
+            "type": "keyword"
+         },
+         "primary_distribution_id": {
+            "type": "keyword"
+         },
+         "asn": {
+            "type": "keyword"
+         }
+      }
+   }
 }
 ```
 ## Running the Application
