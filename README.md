@@ -1,6 +1,24 @@
-# ClickHouse Distributed MergeTree Data Ingestion
+# CloudFront Realtime logs to External Data Store
 
-This project provides a data ingestion pipeline that reads data from AWS Kinesis and writes it to a ClickHouse database using the Distributed MergeTree engine. The code is designed to handle multiple pods and threads, ensuring efficient and reliable data ingestion in a distributed environment.
+This project provides a data ingestion pipeline that reads data from AWS Kinesis and writes it to a ClickHouse or ElasticSearch.
+
+
+![img.png](img/img.png)
+
+## Dashboards View On Grafana
+### Map View
+![img.png](img/img_2.png)
+
+### Table View 
+![img_1.png](img/img_1.png)
+
+We use aggregated View to Analyse traffic pattern based on Source IPs, ASN, Hosts, User Agents, Country.
+
+This view empower Licious's WAF (Web Application Firewal) system detecting and blocking possible attacks.
+
+## AWS Supported Docs
+- https://aws.amazon.com/blogs/networking-and-content-delivery/cloudfront-realtime-logs/
+- https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/real-time-logs.html
 
 ## Table of Contents
 
@@ -13,6 +31,7 @@ This project provides a data ingestion pipeline that reads data from AWS Kinesis
 - [Contributing](#contributing)
 - [License](#license)
 - [Additional Files](#additional-files)
+
 
 ## Prerequisites
 
@@ -49,28 +68,40 @@ Before you begin, ensure you have the following installed:
 
    To deploy ClickHouse on Kubernetes using Helm, follow the [official documentation](https://clickhouse.tech/docs/en/operations/kubernetes/) provided by ClickHouse.
 
-## Configuration
+## Environment Configuration
+
+### Configure DataStore Writer :
+
+Supported Values `CLICKHOUSE`, `ELASTICSEARCH`, or `STDOUT`.
+
+```properties
+WRITER_DESTINATION_DATASOURCE: CLICKHOUSE
+```
+
 
 ### Configure ClickHouse connection:
 
-Update the `application.properties` file with your ClickHouse connection details:
+```properties
+WRITER_DATASOURCE_CLICKHOUSE_URL=jdbc:clickhouse://<your-clickhouse-host>:8123
+WRITER_DATASOURCE_CLICKHOUSE_USER=admin
+WRITER_DATASOURCE_CLICKHOUSE_PASSWORD=changeme
+```
+
+### Configure ElasticSearch connection:
 
 ```properties
-clickhouse.url=jdbc:clickhouse://<your-clickhouse-host>:8123
-clickhouse.username=<your-username>
-clickhouse.password=<your-password>
+WRITER_DATASOURCE_ES_HOST=localhost
+WRITER_DATASOURCE_ES_PORT=9200
+WRITER_DATASOURCE_ES_SCHEME:=http
 ```
 
 ### Configure AWS Kinesis:
 
-Update the `kinesis.properties` file with your AWS Kinesis stream details:
-
 ```properties
-kinesis.streamName=<your-stream-name>
-aws.region=<your-aws-region>
-aws.accessKeyId=<your-access-key-id>
-aws.secretKey=<your-secret-key>
+AWS_KINESIS_STREAM_NAME=<your-stream-name>
+AWS_KINESIS_APPLICATION_NAME=<your-aws-region>
 ```
+
 
 ### ClickHouse Schema
 
