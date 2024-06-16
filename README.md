@@ -16,10 +16,18 @@ We use aggregated View to Analyse traffic pattern based on Source IPs, ASN, Host
 
 This view empower Licious's WAF (Web Application Firewal) system detecting and blocking possible attacks.
 
+## Configuring Realtime Logs of CloudFront on AWS Console
+
+Following are the supported fields configured on `com.licious.cflogprocessor.formatter.CloudfrontLogEntry`.
+We found other fields redundant to our use case. But if required `CloudfrontLogEntry` and `CloudfrontLogEntrySerializer` Class can be configured for other fields.
+
+![img.png](img/img_3.png)
+
 ## AWS Supported Docs
 - https://aws.amazon.com/blogs/networking-and-content-delivery/cloudfront-realtime-logs/
 - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/real-time-logs.html
 
+-----------------------------------
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
