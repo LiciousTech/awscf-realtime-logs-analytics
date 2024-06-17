@@ -1,29 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cf-kinesis-deployment
-  namespace: observability
+  name: awscf-realtime-logs-analytics
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cf-kinesis
+      app: cflogs-firehose
   template:
     metadata:
       labels:
-        app: cf-kinesis
+        app: cflogs-firehose
     spec:
       containers:
-        - name: cf-kinesis-container
-          image: YOUR_DOCKER_IMAGE_NAME:TAG  # Replace with your actual Docker image name and tag
+        - name: cflogs-firehose
+          image: <YOUR_DOCKER_IMAGE_NAME>:<TAG>  # Replace with your actual Docker image name and tag
           imagePullPolicy: IfNotPresent
           env:
-            - name: CLICKHOUSE_USER
-              value: YOUR_CLICKHOUSE_USER  # Replace with your ClickHouse username
-            - name: CLICKHOUSE_PASSWORD
-              value: YOUR_CLICKHOUSE_PASSWORD  # Replace with your ClickHouse password
-            - name: CLICKHOUSE_URL
-              value: YOUR_CLICKHOUSE_URL  # Replace with your ClickHouse URL
+            - name: AWS_KINESIS_STREAM_NAME
+              value: <AWS_KINESIS_STREAM_NAME>
+            - name: AWS_KINESIS_APPLICATION_NAME
+              value: <AWS_KINESIS_APPLICATION_NAME>
+            - name: WRITER_DESTINATION_DATASOURCE
+              value: "STDOUT"
+            - name: AWS_REGION
+              value: "ap-south-1"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
@@ -34,9 +35,6 @@ spec:
                 secretKeyRef:
                   name: kinesis-aws-credentials
                   key: AWS_SECRET_ACCESS_KEY
-          ports:
-            - containerPort: 8080
-              name: http
           resources:
             limits:
               cpu: 1000m
@@ -44,23 +42,6 @@ spec:
             requests:
               cpu: 250m
               memory: 1Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cf-kinesis-service
-  namespace: observability
-  labels:
-    k8s-svc: cf-kinesis-service
-spec:
-  ports:
-    - port: 80
-      targetPort: 8080
-      protocol: TCP
-      name: http
-  selector:
-    app: cf-kinesis
-  type: ClusterIP
 ---
 apiVersion: v1
 kind: Secret
