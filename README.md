@@ -152,10 +152,6 @@ CREATE TABLE cloudfront_logs.cloudfront_logs
 )
 ENGINE = MergeTree
 ORDER BY timestamp
-TTL toDateTime(timestamp) + toIntervalDay(3) TO VOLUME 'cold',
- toDateTime(timestamp) + toIntervalDay(7)
-SETTINGS index_granularity = 100000,
- storage_policy = 'moving_from_hot_to_cold';
 ```
 
 Here moving_from_hot_to_cold is our custom storage policy which moves data older that 3 days to s3 to 
