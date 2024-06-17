@@ -155,9 +155,10 @@ ORDER BY timestamp
 TTL toDateTime(timestamp) + toIntervalDay(3) TO VOLUME 'cold',
  toDateTime(timestamp) + toIntervalDay(7)
 SETTINGS index_granularity = 100000,
- storage_policy = 'moving_from_ssd_to_hdd';
+ storage_policy = 'moving_from_hot_to_cold';
 ```
 
+Here moving_from_hot_to_cold is our custom storage policy which moves data older that 3 days to s3 to 
 Distributed version for having multiple shards:
 ```sql
 -- cloudfront_logs.distributed_cloudfront_logs definition
