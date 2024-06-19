@@ -6,6 +6,8 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionIn
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 
+import com.licious.cflogprocessor.datasource.CompositeWriter;
+import com.licious.cflogprocessor.datasource.Writer;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,6 @@ public class KinesisConsumerService {
     @Value("${kinesis.applicationName}")
     private String applicationName;
 
-
     @Autowired
     private SimpleRecordProcessor recordProcessorFactory;
 
@@ -47,6 +48,8 @@ public class KinesisConsumerService {
         AmazonKinesisClientBuilder clientBuilder = AmazonKinesisClientBuilder.standard()
                 .withCredentials(new DefaultAWSCredentialsProviderChain());
         clientBuilder.setRegion(awsRegion);
+
+
 
         Worker worker = new Worker.Builder()
                 .recordProcessorFactory(() -> recordProcessorFactory)

@@ -1,5 +1,14 @@
 spring.application.name: log-processor
-logging.level.root: INFO
+#logging.level.root: INFO
+spring:
+  profiles:
+    active: local
+
+logging:
+  level:
+    org:
+      springframework: DEBUG
+      springframework.beans.factory: TRACE
 
 aws.region: ${AWS_REGION}
 

@@ -1,0 +1,31 @@
+spring.application.name: log-processor
+spring:
+  config:
+    activate:
+      on-profile: local
+logging:
+  level:
+    org:
+      springframework: DEBUG
+      springframework.beans.factory: TRACE
+
+aws.region: ap-south-1
+kinesis:
+  streamName: cloudfront_logs_test
+  applicationName: TEST2
+
+writer:
+  destination:
+    clickhouse: true
+#    stdout: true
+    file: true
+
+# ClickHouse specific configurations when Clickhouse writer is enabled
+clickhouse:
+  datasource:
+    user: admin
+    password: admin
+    url: clickhouse.com
+
+file:
+  path: "src/main/resources/output.txt"

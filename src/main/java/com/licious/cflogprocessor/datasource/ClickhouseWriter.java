@@ -1,5 +1,6 @@
 package com.licious.cflogprocessor.datasource;
 
+import com.licious.cflogprocessor.service.SimpleRecordProcessor;
 import org.springframework.core.env.Environment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.licious.cflogprocessor.formatter.CloudfrontLogEntry;
@@ -13,16 +14,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ClickhouseWriter {
+public class ClickhouseWriter implements Writer{
 
     private final String clickHouseUrl;
     private final String clickHouseUsername;
     private final String clickHousePassword;
 
-    //@Autowired
     private Environment env;
     private static final Logger logger = LoggerFactory.getLogger(ClickhouseWriter.class);
-    private static final int BATCH_SIZE = 999999;
+    private static final int BATCH_SIZE = 50000;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final List<CloudfrontLogEntry> buffer = new ArrayList<>();
@@ -33,19 +33,18 @@ public class ClickhouseWriter {
         this.clickHousePassword = password;
         this.clickHouseUrl = url;
     }
-    public synchronized void write(CloudfrontLogEntry logEntry){
+    @Override
+    public synchronized void write(CloudfrontLogEntry logEntry) throws Exception{
         try {
             buffer.add(logEntry);
             if (buffer.size() >= BATCH_SIZE) {
                 writeBatchData();
             }
         }catch (Exception e){
-            logger.error("Error occurred while writing log entry: {}", e.getMessage());
+            throw new Exception("Error occurred while writing log entry");
         }
     }
-    public void writeBatchData() {
-        logger.info("Inside writeBatchData");
-        logger.info("Clickhouse Details:"+clickHouseUrl,clickHouseUsername,clickHousePassword);
+    private void writeBatchData() {
 
         try (Connection conn = DriverManager.getConnection(clickHouseUrl, clickHouseUsername, clickHousePassword)) {
             conn.setAutoCommit(false); // Disable auto-commit for batching
