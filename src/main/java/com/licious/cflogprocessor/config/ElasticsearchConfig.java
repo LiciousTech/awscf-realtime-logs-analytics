@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(name = "writer.destination", havingValue = "ELASTICSEARCH")
+@ConditionalOnProperty(name = "writer.destination.elasticsearch", havingValue = "true")
 public class ElasticsearchConfig {
 
     @Value("${elasticsearch.datasource.host}")

@@ -14,7 +14,7 @@ import com.licious.cflogprocessor.formatter.CloudfrontLogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElasticsearchWriter {
+public class ElasticsearchWriter implements Writer {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(ElasticsearchWriter.class);
@@ -23,11 +23,12 @@ public class ElasticsearchWriter {
     private final String scheme;
 
     public ElasticsearchWriter(String host, int port, String scheme) {
-            this.host = host;
-            this.port = port;
-            this.scheme = scheme;
+        this.host = host;
+        this.port = port;
+        this.scheme = scheme;
     }
 
+    @Override
     public void write(CloudfrontLogEntry logEntry) throws Exception {
 
         // Serialize LogEntry to JSON
@@ -36,7 +37,7 @@ public class ElasticsearchWriter {
         // Setup Elasticsearch client - http://10.1.3.216:9200
         try (RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(new HttpHost(host, port, scheme)))) {
-            
+
             IndexRequest request = new IndexRequest("cloudfrontlogs");
             request.source(json, XContentType.JSON);
 

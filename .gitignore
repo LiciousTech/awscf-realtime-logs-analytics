@@ -37,3 +37,6 @@ mvnwdddd
 mvnw.cmd
 ddddmvn/
 
+*.txt
+src/main/resources/application-local.yml
+
