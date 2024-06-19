@@ -37,24 +37,16 @@ public class SimpleRecordProcessor implements IRecordProcessor {
     @Override
     public void processRecords(ProcessRecordsInput processRecordsInput) {
         List<Record> records = processRecordsInput.getRecords();
-        System.out.println("Registered Writers");
-        for(Writer writer : compositeWriter.getWriters()){
-            System.out.println("Writer Name: " + writer.getClass().getSimpleName());
-        }
+
         for (Record record : records) {
             String data = new String(record.getData().array(), StandardCharsets.UTF_8);
-
             CloudfrontLogEntry logEntry = CloudfrontLogEntrySerializer.parseRecord(data);
-
             try {
                 compositeWriter.write(logEntry);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
-
-        // Consider implementing checkpoint logic here
     }
 
     @Override
