@@ -42,27 +42,12 @@ public class SimpleRecordProcessor implements IRecordProcessor {
             System.out.println("Writer Name: " + writer.getClass().getSimpleName());
         }
         for (Record record : records) {
-            // Assuming the data in the record is UTF-8 encoded
             String data = new String(record.getData().array(), StandardCharsets.UTF_8);
 
             CloudfrontLogEntry logEntry = CloudfrontLogEntrySerializer.parseRecord(data);
 
             try {
                 compositeWriter.write(logEntry);
-//
-//                if (writerProperties.getLogDestination() == WriterProperties.WriterDestination.CLICKHOUSE) {
-//                    if (clickhouseWriter != null) {
-//                        clickhouseWriter.write(logEntry);
-//                    }
-//                } else if (writerProperties.getLogDestination() == WriterProperties.WriterDestination.ELASTICSEARCH) {
-//                    if (elasticsearchWriter != null) {
-//                        elasticsearchWriter.write(logEntry);
-//                    }
-//                } else {
-//                    // Handle STDOUT or other destinations
-//                    System.out.println("Writing to logs");
-//                    System.out.println(logEntry);
-//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -6,8 +6,6 @@ import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionIn
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 
-import com.licious.cflogprocessor.datasource.CompositeWriter;
-import com.licious.cflogprocessor.datasource.Writer;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,15 +48,13 @@ public class KinesisConsumerService {
         clientBuilder.setRegion(awsRegion);
 
 
-
+        logger.debug("Worker Starting:");
         Worker worker = new Worker.Builder()
                 .recordProcessorFactory(() -> recordProcessorFactory)
-                // Specify other configurations such as stream name, application name, etc.
                 .config(kinesisClientLibConfiguration)
                 .kinesisClient(clientBuilder.build())
                 .build();
 
-        // Start the worker in a separate thread
         Thread workerThread = new Thread(worker);
         workerThread.start();
     }
