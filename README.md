@@ -117,6 +117,8 @@ Create the necessary tables in your ClickHouse cluster using the following schem
 
 MergeTree Engine
 ```sql
+-- cloudfront_logs.cloudfront_logs definition
+
 CREATE TABLE cloudfront_logs.cloudfront_logs
 (
     `timestamp` UInt64,
@@ -149,41 +151,46 @@ CREATE TABLE cloudfront_logs.cloudfront_logs
     `asn` UInt64
 )
 ENGINE = MergeTree
-ORDER BY timestamp;
+ORDER BY timestamp
 ```
 
+Here moving_from_hot_to_cold is our custom storage policy which moves data older that 3 days to s3 to 
 Distributed version for having multiple shards:
 ```sql
-CREATE TABLE distributed_cloudfront_logs (
-    timestamp String,
-    c_ip String,
-    time_to_first_byte String,
-    sc_status String,
-    sc_bytes String,
-    cs_method String,
-    cs_protocol String,
-    cs_host String,
-    cs_uri_stem String,
-    cs_bytes String,
-    x_edge_location String,
-    x_host_header String,
-    cs_protocol_version String,
-    c_ip_version String,
-    cs_user_agent String,
-    cs_referer String,
-    cs_uri_query String,
-    x_edge_response_result_type String,
-    x_forwarded_for String,
-    ssl_protocol String,
-    x_edge_result_type String,
-    sc_content_type String,
-    c_country String,
-    cs_accept_encoding String,
-    cs_accept String,
-    cache_behavior_path_pattern String,
-    primary_distribution_id String,
-    asn String
-) ENGINE = Distributed('cluster', 'cloudfront_logs', 'cloudfront_logs', rand());
+-- cloudfront_logs.distributed_cloudfront_logs definition
+
+CREATE TABLE cloudfront_logs.distributed_cloudfront_logs
+(
+    `timestamp` UInt64,
+    `c_ip` String,
+    `time_to_first_byte` Float32,
+    `sc_status` Int32,
+    `sc_bytes` UInt64,
+    `cs_method` String,
+    `cs_protocol` String,
+    `cs_host` String,
+    `cs_uri_stem` String,
+    `cs_bytes` UInt64,
+    `x_edge_location` String,
+    `x_host_header` String,
+    `cs_protocol_version` String,
+    `c_ip_version` String,
+    `cs_user_agent` String,
+    `cs_referer` String,
+    `cs_uri_query` String,
+    `x_edge_response_result_type` String,
+    `x_forwarded_for` String,
+    `ssl_protocol` String,
+    `x_edge_result_type` String,
+    `sc_content_type` String,
+    `c_country` String,
+    `cs_accept_encoding` String,
+    `cs_accept` String,
+    `cache_behavior_path_pattern` String,
+    `primary_distribution_id` String,
+    `asn` UInt64
+)
+ENGINE = Distributed('cluster_name', 'database_name', 'local_table_name', cityHash64(timestamp));
 ```
 
 ### Elasticsearch Mapping
