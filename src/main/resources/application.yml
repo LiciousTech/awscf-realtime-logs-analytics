@@ -1,5 +1,10 @@
 spring.application.name: log-processor
-logging.level.root: INFO
+
+logging:
+  level:
+    org:
+      springframework: DEBUG
+      springframework.beans.factory: TRACE
 
 aws.region: ${AWS_REGION}
 
@@ -9,10 +14,14 @@ kinesis:
 
 
 # Writer to enable.
-# Options: CLICKHOUSE, ELASTICSEARCH, STDOUT
+# Options: CLICKHOUSE, ELASTICSEARCH, STDOUT, S3
 #
 writer:
-    destination: ${WRITER_DESTINATION_DATASOURCE:STDOUT}
+  destination:
+    clickhouse: ${WRITER_DESTINATION_CLICKHOUSE:false}
+    stdout: ${WRITER_DESTINATION_STDOUT:true}
+    file: ${WRITER_DESTINATION_FILE:false}
+    s3: ${WRITER_DESTINATION_S3:false}
 
 # ClickHouse specific configurations when Clickhouse writer is enabled
 clickhouse:
@@ -29,4 +38,11 @@ elasticsearch:
     scheme: ${WRITER_DATASOURCE_ES_SCHEME:http}
     #user: ${WRITER_DATASOURCE_ELASTICSEARCH_USER:admin}
     #password: ${WRITER_DATASOURCE_ELASTICSEARCH_PASSWORD:default}
+
+# S3 specific configurations when S3 writer is enabled.
+s3:
+  datasource:
+    bucket:
+      name: ${WRITER_DATASOURCE_S3_BUCKETNAME}
+    region: ${WRITER_DATASOURCE_S3_REGION:ap-south-1}
 

@@ -7,8 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(name = "writer.destination", havingValue = "CLICKHOUSE")
-//@ConfigurationProperties(prefix = "clickhouse.datasource")
+@ConditionalOnProperty(name = "writer.destination.clickhouse", havingValue = "true")
 public class ClickhouseConfig {
 
     @Value("${clickhouse.datasource.user}")

@@ -28,7 +28,6 @@ public class KinesisConsumerService {
     @Value("${kinesis.applicationName}")
     private String applicationName;
 
-
     @Autowired
     private SimpleRecordProcessor recordProcessorFactory;
 
@@ -41,21 +40,21 @@ public class KinesisConsumerService {
                         new DefaultAWSCredentialsProviderChain(),
                         java.util.UUID.randomUUID().toString()
                 )
-                .withRegionName(awsRegion)
-                .withInitialPositionInStream(InitialPositionInStream.LATEST);
+                        .withRegionName(awsRegion)
+                        .withInitialPositionInStream(InitialPositionInStream.LATEST);
 
         AmazonKinesisClientBuilder clientBuilder = AmazonKinesisClientBuilder.standard()
                 .withCredentials(new DefaultAWSCredentialsProviderChain());
         clientBuilder.setRegion(awsRegion);
 
+
+        logger.debug("Worker Starting:");
         Worker worker = new Worker.Builder()
                 .recordProcessorFactory(() -> recordProcessorFactory)
-                // Specify other configurations such as stream name, application name, etc.
                 .config(kinesisClientLibConfiguration)
                 .kinesisClient(clientBuilder.build())
                 .build();
 
-        // Start the worker in a separate thread
         Thread workerThread = new Thread(worker);
         workerThread.start();
     }
