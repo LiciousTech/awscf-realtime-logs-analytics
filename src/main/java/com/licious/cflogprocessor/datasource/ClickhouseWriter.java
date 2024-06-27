@@ -14,16 +14,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ClickhouseWriter implements Writer{
+public class ClickhouseWriter implements Writer {
 
     private final String clickHouseUrl;
     private final String clickHouseUsername;
     private final String clickHousePassword;
-
-    private Environment env;
-    private static final Logger logger = LoggerFactory.getLogger(ClickhouseWriter.class);
     private static final int BATCH_SIZE = 50000;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final List<CloudfrontLogEntry> buffer = new ArrayList<>();
 
@@ -33,17 +30,19 @@ public class ClickhouseWriter implements Writer{
         this.clickHousePassword = password;
         this.clickHouseUrl = url;
     }
+
     @Override
-    public synchronized void write(CloudfrontLogEntry logEntry) throws Exception{
+    public synchronized void write(CloudfrontLogEntry logEntry) throws Exception {
         try {
             buffer.add(logEntry);
             if (buffer.size() >= BATCH_SIZE) {
                 writeBatchData();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception("Error occurred while writing log entry");
         }
     }
+
     private void writeBatchData() {
 
         try (Connection conn = DriverManager.getConnection(clickHouseUrl, clickHouseUsername, clickHousePassword)) {
@@ -100,7 +99,7 @@ public class ClickhouseWriter implements Writer{
         return objectMapper.writeValueAsString(logEntry);
     }
 
-    private Long convertEpochSeconds(String epochString) throws Exception{
+    private Long convertEpochSeconds(String epochString) throws Exception {
         try {
             double epochSeconds = Double.parseDouble(epochString);
             long milliseconds = (long) (epochSeconds * 1000);

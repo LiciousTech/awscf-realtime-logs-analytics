@@ -40,8 +40,8 @@ public class KinesisConsumerService {
                         new DefaultAWSCredentialsProviderChain(),
                         java.util.UUID.randomUUID().toString()
                 )
-                .withRegionName(awsRegion)
-                .withInitialPositionInStream(InitialPositionInStream.LATEST);
+                        .withRegionName(awsRegion)
+                        .withInitialPositionInStream(InitialPositionInStream.LATEST);
 
         AmazonKinesisClientBuilder clientBuilder = AmazonKinesisClientBuilder.standard()
                 .withCredentials(new DefaultAWSCredentialsProviderChain());

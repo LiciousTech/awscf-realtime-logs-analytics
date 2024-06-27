@@ -13,7 +13,7 @@ public class FileCustomWriterConfig {
     private String filePath;
 
     @Bean
-    public FileCustomWriter fileCustomWriter(){
+    public FileCustomWriter fileCustomWriter() {
         return new FileCustomWriter(filePath);
     }
 }

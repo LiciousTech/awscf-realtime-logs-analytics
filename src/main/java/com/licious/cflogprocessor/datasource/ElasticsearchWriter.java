@@ -23,9 +23,9 @@ public class ElasticsearchWriter implements Writer {
     private final String scheme;
 
     public ElasticsearchWriter(String host, int port, String scheme) {
-            this.host = host;
-            this.port = port;
-            this.scheme = scheme;
+        this.host = host;
+        this.port = port;
+        this.scheme = scheme;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ElasticsearchWriter implements Writer {
         // Setup Elasticsearch client - http://10.1.3.216:9200
         try (RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(new HttpHost(host, port, scheme)))) {
-            
+
             IndexRequest request = new IndexRequest("cloudfrontlogs");
             request.source(json, XContentType.JSON);
 

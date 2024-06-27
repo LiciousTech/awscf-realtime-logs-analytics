@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Getter
-public class CompositeWriter implements Writer{
+public class CompositeWriter implements Writer {
     private List<Writer> writers;
 
     @Autowired

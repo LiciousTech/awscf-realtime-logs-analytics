@@ -16,9 +16,10 @@ kinesis:
 
 writer:
   destination:
-    clickhouse: true
-#    stdout: true
-    file: true
+    clickhouse: false
+    stdout: true
+    file: false
+    s3: true
 
 # ClickHouse specific configurations when Clickhouse writer is enabled
 clickhouse:
@@ -29,3 +30,8 @@ clickhouse:
 
 file:
   path: "src/main/resources/output.txt"
+
+s3:
+  bucket:
+    name: ls-devops-cloudfront-logs
+  region: ap-south-1
